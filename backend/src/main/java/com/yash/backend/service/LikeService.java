@@ -24,8 +24,8 @@ public class LikeService {
     @Autowired
     private PostRepository postRepository;
 
-    // 🔥 TOGGLE LIKE (LIKE / UNLIKE)
-    public String toggleLike(Long userId, Long postId) {
+    	// 🔥 TOGGLE LIKE (LIKE / UNLIKE)
+    	public String toggleLike(Long userId, Long postId) {
 
         Optional<Like> existingLike =
                 likeRepository.findByUserIdAndPostId(userId, postId);
