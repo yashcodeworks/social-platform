@@ -2,6 +2,7 @@ package com.yash.backend.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,9 @@ public class AuthController {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	@PostMapping("/login")
 	private String login(@RequestBody LoginRequest request) {
 		
@@ -26,9 +30,9 @@ public class AuthController {
 	            return "User not found";
 	        }
 
-	        if (!user.getPassword().equals(request.getPassword())) {
-	            return "Invalid password";
-	        }
+		 	if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+		 	    return "Invalid password";
+		 	}
 		
 		return "Login Successfull";
 	}
