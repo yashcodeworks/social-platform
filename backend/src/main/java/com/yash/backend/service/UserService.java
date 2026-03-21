@@ -13,11 +13,15 @@ public class UserService {
 	
 	private UserRepository userRepository;
 	
-    public User createUser(User user) {
-    	
-    	System.out.println(user);
-        return userRepository.save(user);
-    }
+	public User createUser(User user) {
+
+	    userRepository.findByEmail(user.getEmail())
+	        .ifPresent(u -> {
+	            throw new IllegalArgumentException("Email already exists");
+	        });
+
+	    return userRepository.save(user);
+	}
     
 
 
