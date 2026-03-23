@@ -13,16 +13,20 @@ public class UserService {
 	
 	private UserRepository userRepository;
 	
-	public User createUser(User user) {
+	 public User createUser(User user) {
 
-	    userRepository.findByEmail(user.getEmail())
-	        .ifPresent(u -> {
-	            throw new IllegalArgumentException("Email already exists");
-	        });
+	        // ✅ check email already exists
+	        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+	            throw new RuntimeException("Email already exists ❌");
+	        }
 
-	    return userRepository.save(user);
-	}
-    
+	        // 👉 save user
+	        return userRepository.save(user);
+	    }
+
+	 public boolean existsByEmail(String email) {
+	        return userRepository.findByEmail(email).isPresent();
+	    }   
 
 
 }

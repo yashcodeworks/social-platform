@@ -1,7 +1,8 @@
 package com.yash.backend.entity;
 
-
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,11 +12,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="posts")
-
+@Table(name = "posts")
 public class Post {
 	
 	@Id
@@ -27,57 +28,70 @@ public class Post {
 	
 	private String image_url;
 	
-	 private LocalDateTime createdAt;
+	// 🔥 Safe datetime handling
+	@Column(nullable = false)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	private LocalDateTime createdAt;
 	 
-	 @ManyToOne
-	    @JoinColumn(name = "user_id", nullable = false)
-	    private User user;
+	@ManyToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-	 @PrePersist
-	 public void setCreatedAt() {
-	     this.createdAt = LocalDateTime.now();
-	 }
-	 
-	 public long getId() {
-		 return id;
-	 }
+	// 🔥 Auto set time before saving
+	@PrePersist
+	public void setCreatedAt() {
+	    if (this.createdAt == null) {
+	        this.createdAt = LocalDateTime.now();
+	    }
+	}
 
-	 public void setId(long id) {
-		 this.id = id;
-	 }
+	// 🔥 Optional: update time if needed later
+	@PreUpdate
+	public void onUpdate() {
+	    if (this.createdAt == null) {
+	        this.createdAt = LocalDateTime.now();
+	    }
+	}
 
-	 public String getContent() {
-		 return content;
-	 }
+	// Getters & Setters
 
-	 public void setContent(String content) {
-		 this.content = content;
-	 }
+	public long getId() {
+		return id;
+	}
 
-	 public String getImage_url() {
-		 return image_url;
-	 }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-	 public void setImage_url(String image_url) {
-		 this.image_url = image_url;
-	 }
+	public String getContent() {
+		return content;
+	}
 
-	 public LocalDateTime getCreatedAt() {
-		 return createdAt;
-	 }
+	public void setContent(String content) {
+		this.content = content;
+	}
 
-	 public void setCreatedAt(LocalDateTime createdAt) {
-		 this.createdAt = createdAt;
-	 }
+	public String getImage_url() {
+		return image_url;
+	}
 
-	 public User getUser() {
-		 return user;
-	 }
+	public void setImage_url(String image_url) {
+		this.image_url = image_url;
+	}
 
-	 public void setUser(User user) {
-		 this.user = user;
-	 }
-	 
-	 
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
 
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
 }

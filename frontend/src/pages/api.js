@@ -1,4 +1,5 @@
 // src/api.js
+import axios from "axios";
 export const getFeed = async (token) => {
   try {
     const res = await fetch("http://localhost:8080/api/feed", {
@@ -68,4 +69,8 @@ export const deleteComment = async (id, token) => {
       Authorization: "Bearer " + token,
     },
   });
+};
+export const registerUser = async (userData) => {
+  const res = await axios.post("http://localhost:8080/api/users", userData);
+  return res.data;
 };
