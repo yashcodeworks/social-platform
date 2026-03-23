@@ -31,4 +31,41 @@ export const toggleLike = async (postId, token, userId) => {
   );
 
   return res.json();
+}
+
+
+
+export const addComment = async (comment, token) => {
+  const res = await fetch("http://localhost:8080/api/comments", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify(comment),
+  });
+
+  return res.json();
+};
+
+export const getComments = async (postId) => {
+  const res = await fetch(`http://localhost:8080/api/comments/post/${postId}`);
+
+  // 🔥 safe handling
+  if (!res.ok) {
+    return [];
+  }
+
+  const text = await res.text();
+
+  return text ? JSON.parse(text) : [];
+};
+
+export const deleteComment = async (id, token) => {
+  await fetch(`http://localhost:8080/api/comments/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
 };

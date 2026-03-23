@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { getFeed, toggleLike } from "./api";
+import { getFeed, toggleLike, getComments, addComment, deleteComment } from "./api";
 
 const Feed = () => {
   const currentUserEmail = localStorage.getItem("email");
-  const userId = localStorage.getItem("userId"); // 🔥 IMPORTANT
+  const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
 
   const [posts, setPosts] = useState([]);
+  const [comments, setComments] = useState({});
+  const [newComment, setNewComment] = useState({});
 
   useEffect(() => {
     fetchFeed();
   }, []);
 
+  // 🔥 FETCH POSTS
   const fetchFeed = async () => {
     const data = await getFeed(token);
     setPosts(data);
   };
 
-  // 🔥 DELETE
+  // 🔥 DELETE POST
   const handleDelete = async (id) => {
     try {
       await fetch(`http://localhost:8080/api/posts/${id}`, {
@@ -39,19 +42,56 @@ const Feed = () => {
   // 🔥 LIKE
   const handleLike = async (postId) => {
     try {
-      console.log("Sending Like:", postId, userId); // debug
-
       const data = await toggleLike(postId, token, userId);
 
-      // 🔥 UI update without reload (better UX)
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
+      setPosts((prev) =>
+        prev.map((post) =>
           post.id === postId
-            ? { ...post, likeCount: data.likeCount }
+            ? { ...post, likeCount: data.likeCount, liked: data.liked }
             : post
         )
       );
 
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // 🔥 FETCH COMMENTS
+  const fetchComments = async (postId) => {
+    const data = await getComments(postId);
+
+    setComments((prev) => ({
+      ...prev,
+      [postId]: data,
+    }));
+  };
+
+  // 🔥 ADD COMMENT
+  const handleAddComment = async (postId) => {
+    try {
+      const commentData = {
+        content: newComment[postId],
+        user: { id: userId },
+        post: { id: postId },
+      };
+
+      await addComment(commentData, token);
+
+      setNewComment((prev) => ({ ...prev, [postId]: "" }));
+
+      fetchComments(postId);
+
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // 🔥 DELETE COMMENT
+  const handleDeleteComment = async (commentId, postId) => {
+    try {
+      await deleteComment(commentId, token);
+      fetchComments(postId);
     } catch (err) {
       console.log(err);
     }
@@ -89,10 +129,10 @@ const Feed = () => {
           <p>By: {post.user?.username}</p>
           <p>{new Date(post.createdAt).toLocaleString()}</p>
 
-          {/* 🔥 LIKE SECTION */}
+          {/* 🔥 LIKE */}
           <div style={{ marginTop: "10px" }}>
             <button onClick={() => handleLike(post.id)}>
-              👍 Like
+              {post.liked ? "💔 Unlike" : "👍 Like"}
             </button>
 
             <span style={{ marginLeft: "10px" }}>
@@ -100,12 +140,59 @@ const Feed = () => {
             </span>
           </div>
 
-          {/* 🔥 DELETE (only own post) */}
+          {/* 🔥 DELETE POST */}
           {post.user?.email === currentUserEmail && (
             <button onClick={() => handleDelete(post.id)}>
               Delete
             </button>
           )}
+
+          {/* 🔥 COMMENTS */}
+          <div style={{ marginTop: "15px" }}>
+            <button onClick={() => fetchComments(post.id)}>
+              Show Comments
+            </button>
+
+            {/* comment list */}
+            {(comments[post.id] || []).map((c) => (
+              <div
+                key={c.id}
+                style={{
+                  borderTop: "1px solid #eee",
+                  marginTop: "5px",
+                }}
+              >
+                <p>{c.content}</p>
+                <small>By: {c.user?.username}</small>
+
+                {c.user?.email === currentUserEmail && (
+                  <button
+                    onClick={() => handleDeleteComment(c.id, post.id)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {/* add comment */}
+            <div style={{ marginTop: "10px" }}>
+              <input
+                placeholder="Write a comment..."
+                value={newComment[post.id] || ""}
+                onChange={(e) =>
+                  setNewComment((prev) => ({
+                    ...prev,
+                    [post.id]: e.target.value,
+                  }))
+                }
+              />
+
+              <button onClick={() => handleAddComment(post.id)}>
+                Comment
+              </button>
+            </div>
+          </div>
         </div>
       ))}
     </div>
