@@ -18,4 +18,17 @@ export const getFeed = async (token) => {
     console.error(err);
     return [];
   }
+}
+export const toggleLike = async (postId, token, userId) => {
+  const res = await fetch(
+    `http://localhost:8080/api/likes/${postId}/like?userId=${userId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    }
+  );
+
+  return res.json();
 };

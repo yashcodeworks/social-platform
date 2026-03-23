@@ -12,48 +12,59 @@ import com.yash.backend.repository.LikeRepository;
 import com.yash.backend.repository.PostRepository;
 import com.yash.backend.repository.UserRepository;
 
-@Service
-public class LikeService {
+    @Service
+    public class LikeService {
 
-    @Autowired
-    private LikeRepository likeRepository;
+        @Autowired
+        private LikeRepository likeRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+        @Autowired
+        private UserRepository userRepository;
 
-    @Autowired
-    private PostRepository postRepository;
+        @Autowired
+        private PostRepository postRepository;
 
-    	// 🔥 TOGGLE LIKE (LIKE / UNLIKE)
-    	public String toggleLike(Long userId, Long postId) {
+        public java.util.Map<String, Object> toggleLike(Long userId, Long postId) {
 
-        Optional<Like> existingLike =
-                likeRepository.findByUserIdAndPostId(userId, postId);
+            Optional<Like> existingLike =
+                    likeRepository.findByUserIdAndPostId(userId, postId);
 
-        // 👉 already liked → UNLIKE
-        if (existingLike.isPresent()) {
-            likeRepository.delete(existingLike.get());
-            return "Post unliked ❌";
+            boolean liked;
+
+            if (existingLike.isPresent()) {
+                likeRepository.delete(existingLike.get());
+                liked = false;
+            } else {
+
+                User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+
+                Post post = postRepository.findById(postId)
+                        .orElseThrow(() -> new RuntimeException("Post not found"));
+
+                Like like = new Like();
+                like.setUser(user);
+                like.setPost(post);
+
+                likeRepository.save(like);
+                liked = true;
+            }
+            
+            
+
+            long count = likeRepository.countByPostId(postId);
+
+            
+            // 🔥 JSON return
+            return java.util.Map.of(
+                    "liked", liked,
+                    "likeCount", count
+            );
+        }
+        
+        public long getLikeCount(Long postId) {
+            return likeRepository.countByPostId(postId);
         }
 
-        // 👉 else → LIKE
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-
-        Like like = new Like();
-        like.setUser(user);
-        like.setPost(post);
-
-        likeRepository.save(like);
-
-        return "Post liked ❤️";
-    }
-
-    // ❤️ COUNT LIKES
-    public long getLikeCount(Long postId) {
-        return likeRepository.countByPostId(postId);
-    }
+    
 }
