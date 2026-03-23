@@ -11,3 +11,19 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* 🌙 DARK THEME (MAIN) */
+body {
+  background-color: #0d0d0d;  /* deep black */
+  color: #eaeaea;
+  font-family: "Poppins", sans-serif;
+}
+
+/* CARD */
+:root {
+  --card-bg: #141414;
+  --border-color: #262626;
+  --text-secondary: #a1a1aa;
+
+  /* 🔥 GRADIENT */
+  --accent: linear-gradient(90deg, #a855f7, #ec4899);
+}

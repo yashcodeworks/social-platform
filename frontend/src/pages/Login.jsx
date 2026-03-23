@@ -1,53 +1,73 @@
 import { useState } from "react";
-import axios from "axios";
+import { Container, Card, Form, Button } from "react-bootstrap";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
-  try {
-    const res = await axios.post("http://localhost:8080/auth/login", {
-      email,
-      password,
-    });
+    try {
+      const res = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("userId", res.data.id);
-    localStorage.setItem("email", res.data.email);
+      const data = await res.json();
 
-    alert("Login Success 🚀");
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("userId", data.id);
 
-    window.location.href = "/feed";
+      alert("Login Success ✅");
+      window.location.href = "/feed";
 
-  } catch (err) {
-    alert("Invalid credentials ❌");
-  }
-};
+    } catch (err) {
+      console.log(err);
+      alert("Login failed ❌");
+    }
+  };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <Container className="d-flex justify-content-center align-items-center vh-100">
+      <Card style={{ width: "400px" }} className="shadow p-4">
+        <h3 className="text-center mb-3">Login</h3>
 
-      <input
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Control
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Form.Group>
 
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <Form.Group className="mb-3">
+            <Form.Control
+              type="password"
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
 
-      <button onClick={handleLogin}>Login</button>
+          <Button
+            variant="primary"
+            className="w-100"
+            onClick={handleLogin}
+          >
+            Login
+          </Button>
+        </Form>
 
-      <p>
-        Don't have an account?{" "}
-        <a href="/register">Register</a>
-      </p>
-    </div>
+        <p className="text-center mt-3">
+          Don't have an account? <a href="/register">Register</a>
+        </p>
+      </Card>
+    </Container>
   );
 }
 

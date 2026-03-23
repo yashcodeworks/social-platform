@@ -1,38 +1,79 @@
-const Navbar = () => {
+import { Navbar, Container } from "react-bootstrap";
+
+const AppNavbar = () => {
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = "/";
   };
 
   return (
-    <div style={{
-      padding: "10px 20px",
-      borderBottom: "1px solid #ddd",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      backgroundColor: "#fff",
-      position: "sticky",
-      top: 0,
-      zIndex: 1000
-    }}>
-      <h3 style={{ margin: 0 }}>SocialApp</h3>
+    <Navbar
+      style={{
+        backgroundColor: "#0d0d0d",
+        borderBottom: "1px solid #262626",
+        padding: "12px 0",
+      }}
+      sticky="top"
+    >
+      <Container className="d-flex justify-content-between align-items-center">
 
-      <button
-        onClick={handleLogout}
-        style={{
-          padding: "6px 12px",
-          border: "none",
-          borderRadius: "5px",
-          backgroundColor: "#ff4d4f",
-          color: "white",
-          cursor: "pointer"
-        }}
-      >
-        Logout
-      </button>
-    </div>
+        {/* LOGO */}
+        <div
+          style={{
+            fontWeight: "bold",
+            fontSize: "25px",
+            background: "linear-gradient(90deg,#a855f7,#ec4899)",
+            WebkitBackgroundClip: "text",
+            color: "transparent",
+            cursor: "pointer",
+          }}
+          onClick={() => (window.location.href = "/feed")}
+        >
+          Noctra
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="d-flex align-items-center gap-3">
+
+          {/* CREATE BUTTON */}
+          <button
+            onClick={() => (window.location.href = "/create")}
+            style={{
+              border: "none",
+              padding: "6px 14px",
+              borderRadius: "20px",
+              background: "linear-gradient(90deg,#a855f7,#ec4899)",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: "500",
+              cursor: "pointer",
+            }}
+          >
+            + Post
+          </button>
+
+          {/* LOGOUT */}
+          <button
+            onClick={handleLogout}
+            style={{
+              border: "1px solid #333",
+              padding: "6px 14px",
+              borderRadius: "20px",
+              background: "transparent",
+              color: "#e5e5e5",
+              fontSize: "14px",
+              cursor: "pointer",
+            }}
+          >
+            Logout
+          </button>
+
+        </div>
+
+      </Container>
+    </Navbar>
   );
 };
 
-export default Navbar;
+export default AppNavbar;

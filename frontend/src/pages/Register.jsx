@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { Container, Card, Form, Button } from "react-bootstrap";
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -8,62 +8,81 @@ function Register() {
 
   const handleRegister = async () => {
     try {
-      // 🔥 validation
       if (!username || !email || !password) {
-        alert("All fields are required ❗");
+        alert("All fields required ❗");
         return;
       }
 
-      await axios.post("http://localhost:8080/api/users", {
-        username,
-        email,
-        password,
+      await fetch("http://localhost:8080/api/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
       });
 
       alert("Signup Success 🎉");
 
-      // 🔥 redirect to login page
-      window.location.href = "/";
+      window.location.href = "/"; // 🔥 login page
 
     } catch (err) {
       console.log(err);
-      alert("Signup failed ❌ (maybe email already exists)");
+      alert("Signup failed ❌");
     }
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Register</h2>
+    <Container className="d-flex justify-content-center align-items-center vh-100">
+      <Card style={{ width: "400px" }} className="shadow p-4">
+        
+        <h3 className="text-center mb-3">Register</h3>
 
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+        <Form>
+          <Form.Group className="mb-3">
+            <Form.Control
+              placeholder="Username"
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </Form.Group>
 
-      <br /><br />
+          <Form.Group className="mb-3">
+            <Form.Control
+              type="email"
+              placeholder="Email"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Form.Group>
 
-      <input
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+          <Form.Group className="mb-3">
+            <Form.Control
+              type="password"
+              placeholder="Password"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form.Group>
 
-      <br /><br />
+          <Button
+            variant="success"
+            className="w-100"
+            onClick={handleRegister}
+          >
+            Register
+          </Button>
+        </Form>
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        {/* 🔥 LOGIN LINK BELOW */}
+        <p className="text-center mt-3">
+          Already have an account?{" "}
+          <span
+            style={{ color: "blue", cursor: "pointer" }}
+            onClick={() => (window.location.href = "/")}
+          >
+            Login
+          </span>
+        </p>
 
-      <br /><br />
-
-      <button onClick={handleRegister}>
-        Register
-      </button>
-    </div>
+      </Card>
+    </Container>
   );
 }
 

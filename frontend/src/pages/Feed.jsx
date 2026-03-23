@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
-import { getFeed, toggleLike, getComments, addComment, deleteComment } from "./api";
+import AppNavbar from "../components/Navbar";
+import { Container, Card, Row, Col, Dropdown } from "react-bootstrap";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  getFeed,
+  toggleLike,
+  getComments,
+  addComment,
+} from "./api";
 
 const Feed = () => {
   const currentUserEmail = localStorage.getItem("email");
@@ -20,6 +28,39 @@ const Feed = () => {
     setPosts(data);
   };
 
+  const handleLike = async (postId) => {
+    const data = await toggleLike(postId, token, userId);
+
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId
+          ? { ...p, likeCount: data.likeCount, liked: data.liked }
+          : p
+      )
+    );
+  };
+
+  const fetchComments = async (postId) => {
+    const data = await getComments(postId);
+    setComments((prev) => ({ ...prev, [postId]: data }));
+  };
+
+  const handleAddComment = async (postId) => {
+    if (!newComment[postId]) return;
+
+    await addComment(
+      {
+        content: newComment[postId],
+        user: { id: userId },
+        post: { id: postId },
+      },
+      token
+    );
+
+    setNewComment((prev) => ({ ...prev, [postId]: "" }));
+    fetchComments(postId);
+  };
+
   const handleDelete = async (id) => {
     try {
       await fetch(`http://localhost:8080/api/posts/${id}`, {
@@ -29,198 +70,221 @@ const Feed = () => {
         },
       });
 
-      alert("Deleted ✅");
       fetchFeed();
     } catch (err) {
       console.log(err);
-      alert("Error deleting ❌");
     }
   };
 
-  const handleLike = async (postId) => {
-    try {
-      const data = await toggleLike(postId, token, userId);
-
-      setPosts((prev) =>
-        prev.map((post) =>
-          post.id === postId
-            ? { ...post, likeCount: data.likeCount, liked: data.liked }
-            : post
-        )
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const fetchComments = async (postId) => {
-    const data = await getComments(postId);
-    setComments((prev) => ({ ...prev, [postId]: data }));
-  };
-
-  const handleAddComment = async (postId) => {
-    try {
-      if (!newComment[postId]) return;
-
-      const commentData = {
-        content: newComment[postId],
-        user: { id: userId },
-        post: { id: postId },
-      };
-
-      await addComment(commentData, token);
-      setNewComment((prev) => ({ ...prev, [postId]: "" }));
-      fetchComments(postId);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const handleDeleteComment = async (commentId, postId) => {
-    try {
-      await deleteComment(commentId, token);
-      fetchComments(postId);
-    } catch (err) {
-      console.log(err);
-    }
+  const handleEdit = (post) => {
+    localStorage.setItem("editPost", JSON.stringify(post));
+    window.location.href = "/edit";
   };
 
   return (
-    <div style={{ backgroundColor: "#f5f5f5", minHeight: "100vh" }}>
-      
-      {/* 🔥 NAVBAR */}
-      <Navbar />
+    <div style={{ background: "#0d0d0d", minHeight: "100vh" }}>
+      <AppNavbar />
 
-      {/* 🔥 CENTERED FEED */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ width: "600px", padding: "20px" }}>
+      <Container className="mt-4">
+        <Row className="justify-content-center">
+          <Col xs={12} md={8} lg={6}>
 
-          <button
-            onClick={() => (window.location.href = "/create")}
-            style={{
-              marginBottom: "15px",
-              padding: "10px",
-              borderRadius: "5px",
-              border: "none",
-              backgroundColor: "#007bff",
-              color: "white",
-              cursor: "pointer"
-            }}
-          >
-            Create Post
-          </button>
+            {posts.map((post) => (
+              <Card
+                key={post.id}
+                className="mb-4"
+                style={{
+                  backgroundColor: "#141414",
+                  border: "1px solid #262626",
+                  borderRadius: "14px",
+                }}
+              >
+                <Card.Body>
 
-          <h2>Feed</h2>
-
-          {posts.length === 0 && <p>No posts yet</p>}
-
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              style={{
-                backgroundColor: "white",
-                borderRadius: "10px",
-                padding: "15px",
-                marginBottom: "15px",
-                boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
-              }}
-            >
-              <p>{post.content}</p>
-
-              {post.image_url && (
-                <img
-                  src={post.image_url}
-                  alt="post"
-                  style={{ width: "100%", borderRadius: "10px" }}
-                />
-              )}
-
-              <p><b>By:</b> {post.user?.username}</p>
-              <p style={{ fontSize: "12px", color: "gray" }}>
-                {new Date(post.createdAt).toLocaleString()}
-              </p>
-
-              {/* LIKE */}
-              <div style={{ marginTop: "10px" }}>
-                <button onClick={() => handleLike(post.id)}>
-                  {post.liked ? "💔 Unlike" : "👍 Like"}
-                </button>
-
-                <span style={{ marginLeft: "10px" }}>
-                  {post.likeCount || 0} Likes
-                </span>
-              </div>
-
-              {/* DELETE */}
-              {post.user?.email === currentUserEmail && (
-                <button
-                  onClick={() => handleDelete(post.id)}
-                  style={{ marginTop: "5px", color: "red" }}
-                >
-                  Delete
-                </button>
-              )}
-
-              {/* COMMENTS */}
-              <div style={{ marginTop: "15px" }}>
-                <button onClick={() => fetchComments(post.id)}>
-                  Show Comments
-                </button>
-
-                {(comments[post.id] || []).map((c) => (
+                  {/* 🔥 HEADER */}
                   <div
-                    key={c.id}
                     style={{
-                      borderTop: "1px solid #eee",
-                      marginTop: "5px",
-                      paddingTop: "5px"
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "12px",
                     }}
                   >
-                    <p>{c.content}</p>
-                    <small>By: {c.user?.username}</small>
-
-                    {c.user?.email === currentUserEmail && (
-                      <button
-                        onClick={() => handleDeleteComment(c.id, post.id)}
-                        style={{ marginLeft: "10px", color: "red" }}
+                    {/* USER */}
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <div
+                        style={{
+                          width: "38px",
+                          height: "38px",
+                          borderRadius: "50%",
+                          background:
+                            "linear-gradient(90deg,#a855f7,#ec4899)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "white",
+                          marginRight: "10px",
+                          fontWeight: "bold",
+                        }}
                       >
-                        Delete
-                      </button>
+                        {post.user?.username?.charAt(0)}
+                      </div>
+
+                      <div>
+                        <div style={{ color: "#fff", fontWeight: "500" }}>
+                          {post.user?.username}
+                        </div>
+                        <small style={{ color: "#a1a1aa" }}>
+                          {new Date(post.createdAt).toLocaleString()}
+                        </small>
+                      </div>
+                    </div>
+
+                    {/* ⋮ MENU */}
+                    {post.user?.email === currentUserEmail && (
+                      <Dropdown align="end">
+                        <Dropdown.Toggle
+                        
+                          variant="link"
+                          style={{
+                            color: "#aaa",
+                            border: "none",
+                            boxShadow: "none",
+                          }}
+                        >
+                          <BsThreeDotsVertical />
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu
+                          style={{
+                            backgroundColor: "#1c1c1c",
+                            border: "1px solid #333",
+                          }}
+                        >
+                          <Dropdown.Item
+                            onClick={() => handleEdit(post)}
+                            style={{ color: "#fff" }}
+                          >
+                            Edit
+                          </Dropdown.Item>
+
+                          <Dropdown.Item
+                            onClick={() => handleDelete(post.id)}
+                            style={{ color: "#ff4d4f" }}
+                          >
+                            Delete
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     )}
                   </div>
-                ))}
 
-                <div style={{ marginTop: "10px" }}>
-                  <input
-                    placeholder="Write a comment..."
-                    value={newComment[post.id] || ""}
-                    onChange={(e) =>
-                      setNewComment((prev) => ({
-                        ...prev,
-                        [post.id]: e.target.value,
-                      }))
-                    }
-                    style={{
-                      width: "70%",
-                      padding: "5px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc"
-                    }}
-                  />
+                  {/* CONTENT */}
+                  <p style={{ color: "#fff", fontSize: "15px" }}>
+                    {post.content}
+                  </p>
 
-                  <button
-                    onClick={() => handleAddComment(post.id)}
-                    style={{ marginLeft: "10px" }}
-                  >
-                    Comment
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+                  {/* IMAGE */}
+                  {post.image_url && (
+                    <img
+                      src={post.image_url}
+                      alt=""
+                      style={{
+                        width: "100%",
+                        borderRadius: "10px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                  )}
 
-        </div>
-      </div>
+                  {/* ❤️ LIKE */}
+                  <div className="d-flex align-items-center mt-2">
+                    <span
+                      onClick={() => handleLike(post.id)}
+                      style={{
+                        cursor: "pointer",
+                        fontSize: "20px",
+                        color: post.liked ? "#ec4899" : "#aaa",
+                      }}
+                    >
+                      {post.liked ? <FaHeart /> : <FaRegHeart />}
+                    </span>
+
+                    <span style={{ marginLeft: "8px", color: "#aaa" }}>
+                      {post.likeCount || 0} likes
+                    </span>
+                  </div>
+
+                  {/* COMMENTS */}
+                  <div className="mt-3">
+                    <button
+                      onClick={() => fetchComments(post.id)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#a855f7",
+                        cursor: "pointer",
+                        padding: 0,
+                        fontSize: "13px",
+                      }}
+                    >
+                      View comments
+                    </button>
+
+                    {(comments[post.id] || []).map((c) => (
+                      <div key={c.id} style={{ marginTop: "8px", color: "#ddd" }}>
+                        <strong style={{ color: "#fff" }}>
+                          {c.user?.username}
+                        </strong>{" "}
+                        {c.content}
+                      </div>
+                    ))}
+
+                    {/* INPUT */}
+                    <div className="d-flex mt-2">
+                      <input
+                        placeholder="Add a comment..."
+                        value={newComment[post.id] || ""}
+                        onChange={(e) =>
+                          setNewComment((prev) => ({
+                            ...prev,
+                            [post.id]: e.target.value,
+                          }))
+                        }
+                        style={{
+                          flex: 1,
+                          background: "#1c1c1c",
+                          border: "1px solid #333",
+                          borderRadius: "20px",
+                          padding: "8px 12px",
+                          color: "white",
+                        }}
+                      />
+
+                      <button
+                        onClick={() => handleAddComment(post.id)}
+                        style={{
+                          marginLeft: "8px",
+                          border: "none",
+                          borderRadius: "20px",
+                          padding: "6px 14px",
+                          background:
+                            "linear-gradient(90deg,#a855f7,#ec4899)",
+                          color: "white",
+                        }}
+                      >
+                        Post
+                      </button>
+                    </div>
+                  </div>
+
+                </Card.Body>
+              </Card>
+            ))}
+
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };

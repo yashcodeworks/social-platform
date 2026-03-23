@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Feed from "./pages/Feed";
 import CreatePost from "./pages/CreatePost";
 import Register from "./pages/Register";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
