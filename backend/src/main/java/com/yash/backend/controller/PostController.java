@@ -3,6 +3,7 @@ package com.yash.backend.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,9 +40,9 @@ public class PostController {
 	}
 	
 	@DeleteMapping("/posts/{id}")
-	public String deletePost(@PathVariable Long id) {
+	public ResponseEntity<?> deletePost(@PathVariable Long id) {
 	    postService.deletePost(id);
-	    return "Post deleted successfully";
+	    return ResponseEntity.ok("Deleted successfully");
 	}
 
 }

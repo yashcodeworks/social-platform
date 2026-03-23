@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import com.yash.backend.entity.User;
 import com.yash.backend.repository.UserRepository;
 import com.yash.backend.security.JwtUtil;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -39,6 +41,12 @@ public class AuthController {
 
         String token = jwtUtil.generateToken(user.getEmail());
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(
+                java.util.Map.of(
+                    "token", token,
+                    "id", user.getId(),
+                    "email", user.getEmail()
+                )
+            );
     }
 }

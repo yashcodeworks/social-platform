@@ -61,22 +61,24 @@ public class PostService {
         return postRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
     }
     
+
     public void deletePost(Long postId) {
-
-        String email = SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        // 🔥 Ownership check
-        if (post.getUser().getId() != user.getId()) {
-            throw new RuntimeException("You are not allowed to delete this post");
+       
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        
+        User currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        
+        if (!post.getUser().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("You can delete only your own post ❌");
         }
 
         postRepository.delete(post);
