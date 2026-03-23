@@ -12,6 +12,7 @@ function App() {
         <Route path="/feed" element={<Feed />} />
         <Route path="/create" element={<CreatePost />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/navbar" element={<navbar />} />
       </Routes>
     </BrowserRouter>
   );
