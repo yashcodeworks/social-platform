@@ -63,6 +63,7 @@ const Feed = () => {
 
   const handleDelete = async (id) => {
     try {
+      
       await fetch(`http://localhost:8080/api/posts/${id}`, {
         method: "DELETE",
         headers: {
