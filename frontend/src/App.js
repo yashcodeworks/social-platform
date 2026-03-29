@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Feed from "./pages/Feed";
 import CreatePost from "./pages/CreatePost";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -13,7 +14,8 @@ function App() {
         <Route path="/feed" element={<Feed />} />
         <Route path="/create" element={<CreatePost />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/navbar" element={<navbar />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:id" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );

@@ -45,4 +45,8 @@ public class PostController {
 	    return ResponseEntity.ok("Deleted successfully");
 	}
 
+	@GetMapping("/posts/user/{userId}")
+	public List<Post> getUserPosts(@PathVariable Long userId) {
+	    return postService.getUserPosts(userId);
+	}
 }

@@ -83,4 +83,8 @@ public class PostService {
 
         postRepository.delete(post);
     }
+
+    public List<Post> getUserPosts(Long userId) {
+        return postRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    }
 }

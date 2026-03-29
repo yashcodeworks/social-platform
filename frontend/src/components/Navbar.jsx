@@ -53,6 +53,23 @@ const AppNavbar = () => {
             + Post
           </button>
 
+          {/* PROFILE BUTTON */}
+          <button
+            onClick={() => (window.location.href = "/profile")}
+            style={{
+              border: "1px solid #484848",
+              padding: "6px 14px",
+              borderRadius: "20px",
+              background: "#1f1f1f",
+              color: "white",
+              fontSize: "14px",
+              fontWeight: "500",
+              cursor: "pointer",
+            }}
+          >
+            Profile
+          </button>
+
           {/* LOGOUT */}
           <button
             onClick={handleLogout}

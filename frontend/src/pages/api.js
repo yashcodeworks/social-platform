@@ -80,3 +80,34 @@ export const loginUser = async (credentials) => {
   const res = await axios.post("http://localhost:8080/auth/login", credentials);
   return res.data;
 };
+
+export const getUserProfile = async (userId, token) => {
+  const res = await fetch(`http://localhost:8080/api/users/${userId}`, {
+    method: "GET",
+    headers: { Authorization: "Bearer " + token },
+  });
+  if (!res.ok) throw new Error("Failed to fetch profile");
+  return res.json();
+};
+
+export const updateUserProfile = async (data, token) => {
+  const res = await fetch("http://localhost:8080/api/users/profile", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error("Failed to update profile");
+  return res.json();
+};
+
+export const getUserPosts = async (userId, token) => {
+  const res = await fetch(`http://localhost:8080/api/posts/user/${userId}`, {
+    method: "GET",
+    headers: { Authorization: "Bearer " + token },
+  });
+  if (!res.ok) throw new Error("Failed to fetch user posts");
+  return res.json();
+};
