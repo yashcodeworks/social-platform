@@ -70,7 +70,13 @@ export const deleteComment = async (id, token) => {
     },
   });
 };
+
 export const registerUser = async (userData) => {
-  const res = await axios.post("http://localhost:8080/api/users", userData);
+  const res = await axios.post("http://localhost:8080/auth/register", userData);
+  return res.data;
+};
+
+export const loginUser = async (credentials) => {
+  const res = await axios.post("http://localhost:8080/auth/login", credentials);
   return res.data;
 };
