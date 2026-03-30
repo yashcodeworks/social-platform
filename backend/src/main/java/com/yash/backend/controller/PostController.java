@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.yash.backend.dto.PostDTO;
 import com.yash.backend.entity.Post;
 import com.yash.backend.service.PostService;
 
@@ -26,16 +28,16 @@ public class PostController {
 	@PostMapping("/posts")
 	public Post createPost(@RequestBody Post post) {
 		return postService.createPost(post);
-		
 	}
 	
+	// currentUserId optional — used to compute "liked" per post
 	@GetMapping("/feed")
-	public List<Post> getFeed() {
-	    return postService.getFeed();
+	public List<PostDTO> getFeed(@RequestParam(required = false) Long userId) {
+	    return postService.getFeed(userId);
 	}
 	
 	@GetMapping("/my-posts")
-	public List<Post> getMyPosts() {
+	public List<PostDTO> getMyPosts() {
 	    return postService.getMyPosts();
 	}
 	
@@ -46,7 +48,7 @@ public class PostController {
 	}
 
 	@GetMapping("/posts/user/{userId}")
-	public List<Post> getUserPosts(@PathVariable Long userId) {
+	public List<PostDTO> getUserPosts(@PathVariable Long userId) {
 	    return postService.getUserPosts(userId);
 	}
 }

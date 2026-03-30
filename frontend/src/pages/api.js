@@ -1,12 +1,15 @@
 // src/api.js
 import axios from "axios";
-export const getFeed = async (token) => {
+export const getFeed = async (token, userId) => {
   try {
-    const res = await fetch("http://localhost:8080/api/feed", {
+    const url = userId
+      ? `http://localhost:8080/api/feed?userId=${userId}`
+      : "http://localhost:8080/api/feed";
+    const res = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`, // JWT token
+        "Authorization": `Bearer ${token}`,
       },
     });
 
@@ -109,5 +112,23 @@ export const getUserPosts = async (userId, token) => {
     headers: { Authorization: "Bearer " + token },
   });
   if (!res.ok) throw new Error("Failed to fetch user posts");
+  return res.json();
+};
+
+export const uploadProfilePicture = async (file, token) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch("http://localhost:8080/api/users/profile-picture", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      // Do NOT set Content-Type here — browser sets it automatically with boundary
+    },
+    body: formData,
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(errText || "Failed to upload profile picture");
+  }
   return res.json();
 };

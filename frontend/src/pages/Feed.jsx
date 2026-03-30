@@ -24,7 +24,7 @@ const Feed = () => {
   }, []);
 
   const fetchFeed = async () => {
-    const data = await getFeed(token);
+    const data = await getFeed(token, userId);
     setPosts(data);
   };
 
@@ -113,23 +113,24 @@ const Feed = () => {
                   >
                     {/* USER */}
                     <div style={{ display: "flex", alignItems: "center" }}>
-                      <div
+                      <img
+                        src={
+                          post.user?.profilePicture
+                            ? post.user.profilePicture.startsWith("http")
+                              ? post.user.profilePicture
+                              : `http://localhost:8080${post.user.profilePicture}`
+                            : `https://ui-avatars.com/api/?name=${post.user?.username}&background=random`
+                        }
+                        alt={post.user?.username}
                         style={{
                           width: "38px",
                           height: "38px",
                           borderRadius: "50%",
-                          background:
-                            "linear-gradient(90deg,#a855f7,#ec4899)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "white",
+                          objectFit: "cover",
                           marginRight: "10px",
-                          fontWeight: "bold",
+                          border: "2px solid #333",
                         }}
-                      >
-                        {post.user?.username?.charAt(0)}
-                      </div>
+                      />
 
                       <div>
                         <div style={{ color: "#fff", fontWeight: "500" }}>
